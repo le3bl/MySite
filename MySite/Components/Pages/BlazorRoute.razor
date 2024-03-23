@@ -1,0 +1,22 @@
+﻿@page "/blazor-route"
+@using Microsoft.AspNetCore.WebUtilities
+@inject NavigationManager Navigation
+
+@code {
+    protected override void OnInitialized()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("auth", out var authResult))
+        {
+            if (authResult == "success")
+            {
+                // Handle success, such as storing the auth state or redirecting to a protected page
+            }
+            else
+            {
+                // Handle failure or display an error message
+            }
+        }
+    }
+}
