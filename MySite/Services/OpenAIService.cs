@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -16,11 +14,12 @@ public class OpenAIService
         _apiKey = config["OpenAI:ApiKey"];
     }
 
-    public async Task<string> GetResponseAsync(string prompt)
+    public async Task<string> GetResponseAsync(string prompt, string model = "gpt-3.5-turbo")
     {
+        prompt = $"{prompt}. Use markdown to format your response if appropriate.";
         ChatCompletionRequest completionRequest = new()
         {
-            Model = "gpt-3.5-turbo",
+            Model = model,
             MaxTokens = 1000,
             Messages = [
                 new Message()
@@ -32,7 +31,7 @@ public class OpenAIService
             ]
         };
 
-        using var httpReq = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions");
+        using var httpReq = new HttpRequestMessage(HttpMethod.Post, _baseUri);
         httpReq.Headers.Add("Authorization", $"Bearer {_apiKey}");
 
         string requestString = JsonSerializer.Serialize(completionRequest);
@@ -45,6 +44,13 @@ public class OpenAIService
 
         return completionResponse.Choices?[0]?.Message?.Content;
     }
+
+    public static Dictionary<string, string> GptModels = new Dictionary<string, string>
+    {
+        {"GPT-4", "gpt-4"},
+        {"GPT-3.5", "gpt-3.5-turbo"},
+        {"Latest", "gpt-4-0125-preview"},
+    };
 }
 
 

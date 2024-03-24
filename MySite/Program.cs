@@ -55,7 +55,17 @@ builder.Services.AddAuthentication(options =>
         googleOptions.CallbackPath = new PathString("/signin-google"); // Ensure this matches the Google Console setup
     });
 builder.Services.AddOptions();
-builder.Services.AddAuthorizationCore();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("DebugOrAuthorized", policy =>
+    {
+#if DEBUG
+        policy.RequireAssertion(context => true); // Always allow in DEBUG mode
+#else
+        policy.RequireAuthenticatedUser(); // Require authentication in non-DEBUG mode
+#endif
+    });
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<HttpContextAccessor>();
 // Register HttpClient for the whole applcation
