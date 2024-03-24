@@ -63,6 +63,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<HttpClient>();
 builder.Services.AddBlazoredLocalStorage();
 //builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
+builder.Services.AddScoped<OpenAIService>();
 
 var app = builder.Build();
 
