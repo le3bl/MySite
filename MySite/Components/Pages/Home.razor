@@ -1,7 +1,207 @@
 ﻿@page "/"
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Terminal</PageTitle>
+<style>
+    #terminal p, span, div{
+        font-family: monospace;
+        letter-spacing: 0.05em;
+    }
+    #typer{
+        padding-left: 10px;
+    }
+    article.content{
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 0 !important;
+        height: 100%;
+    }
+    #terminal{
+        background-color: #333b4d;
+        height: 100%;
+    }
+    .banner{
+        margin-bottom: 0;
+        margin-top: 0;
+        color: #8babf5;
+    }
+    .info-color{
+        color: #ff8040;
+    }
+    .command{
+        color: #73ABAD;
+        text-shadow: 0 0 5px #73ABAD;
+    }
+    ::selection {
+      color: #211830;
+      background-color: #519975;
+    }
+    ::-moz-selection {
+      color: #211830;
+      background-color: #519975;
+    }
+    textarea {
+      left: -1000px;
+      position: absolute;
+    }
+    b {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    /* Cursor Start */
+    .cursor {
+      font-size: 12px;
+      color: #73ABAD;
+      background-color: #73ABAD;
+      position: relative;
+      opacity: 1;
+      height: 1.5em;
+      width: 10px;
+      max-width: 10px;
+      margin-left: 5px;
+      transform: translateY(4px);
+      overflow: hidden;
+      text-indent: -5px;
+      display: inline-block;
+      text-decoration: blink;
+      animation: blinker 1s linear infinite;
+      left:-5px;
+    }
+    @@keyframes blinker {
+      50% {
+        opacity: 0;
+      }
+    }
+    #command {
+      cursor: text;
+      height: 50px;
+      color: #73ABAD;
+    }
+    #liner {
+      line-height: 1.3em;
+      margin-top: -2px;
+      animation: show 0.5s ease forwards;
+      animation-delay: 1.2s;
+      opacity: 0;
+    }
+    #liner::before {
+      color: #519975;
+      content: "visitor@le3bl.com:~$";
+    }
+    #liner.password::before {
+      content: "Password:";
+    }
+    @@keyframes show {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    /* Cursor End */
+    p {
+      display: block;
+      line-height: 1.3em;
+      overflow: hidden;
+      white-space: nowrap;
+        animation: typing 0.5s steps(30, end);
+        color: #519975;
+    }
+    .no-animation {
+      animation: typing 0 steps(30, end);
+    }
+    .margin {
+      margin-left: 20px;
+    }
+    @@keyframes typing {
+      from {
+        width: 0;
+      }
+      to {
+        width: 100%;
+      }
+    }
+    .index {
+      color: #DCDCCC;
+    }
+    .color2 {
+      color: #B89076;
+    }
+    .command {
+      color: #73ABAD;
+      text-shadow: 0 0 5px #73ABAD; 
+    }
+    .error {
+      color: #B89076;
+    }
+    .white {
+      color: #fff;
+    }
+    .inherit,
+    a {
+      color: #9C8394;
+    }
+    a {
+      text-decoration: inherit;
+    }
+    a:hover {
+      background: #73ABAD;
+      color: #211830;
+    }
+    a:focus {
+      outline: 0;
+    }
+</style>
 
-<h1>Hello</h1>
+<div id="terminal">
+    <p class="banner">Welcome to my web page!</p>
+    <br />
+    <p>
+        <span class="info-color">For a list of available commands type</span>
+        <span class="command">'help'</span>
+    </p>
+    <a id="before"></a>
+    <div id="command" onclick="$('texter').focus();">
+        <textarea type="text" id="texter" onkeyup="typeIt(this, event)" onkeydown="typeIt(this, event); 
+                   moveIt(this.value.length, event);" onkeypress="typeIt(this, event);" autofocus=""></textarea>
+        <div id="liner">
+            <span id="typer"></span><b class="cursor" id="cursor" style="left: -5px;">█</b>
+        </div>
+    </div>
+    @code
+    {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                // Ensure the JavaScript file is loaded and executed each time the component is first rendered
+                await JSRuntime.InvokeVoidAsync("eval", $"var script = document.createElement('script'); script.src = './js/terminal.js'; document.head.appendChild(script);");
+            }
+        }
 
-Welcome to your new app.
+    }
+
+</div>
+
+<script>
+    function typeIt(from, e) {
+        e = e || window.event;
+        var w = $("typer");
+        var tw = from.value;
+        if (!pw) {
+            w.innerHTML = nl2br(tw);
+        }
+    }
+
+    function moveIt(count, e) {
+        e = e || window.event;
+        var keycode = e.keyCode || e.which;
+        if (keycode == 37 && parseInt(cursor.style.left) >= (0 - ((count - 1) * 10))) {
+            cursor.style.left = parseInt(cursor.style.left) - 10 + "px";
+        } else if (keycode == 39 && (parseInt(cursor.style.left) + 10) <= 0) {
+            cursor.style.left = parseInt(cursor.style.left) + 10 + "px";
+        }
+    }
+</script>
